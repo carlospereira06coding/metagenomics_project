@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: mambaorg/micromamba:1.5.8
+
+%files
+    envs /opt/envs
+
+%environment
+    export MAMBA_ROOT_PREFIX=/opt/conda
+
+%post
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    # um ambiente por ficheiro .yml: cada ferramenta fica isolada
+    for f in /opt/envs/*.yml; do
+        micromamba create -y -f "$f"
+    done
+    micromamba clean -a -y
+
+%runscript
+    # corre na pasta atual (o Apptainer monta-a por defeito)
+    exec bash ./go.sh "$@"
